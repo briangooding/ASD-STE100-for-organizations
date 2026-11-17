@@ -1,7 +1,8 @@
 // Training modules. Each module summarizes one area of ASD-STE100 or of
 // general technical-writing practice, in the trainer's own words.
-// The section numbers refer to the writing rules part of the ASD-STE100
-// specification. Always use the official specification as the reference.
+// Section and rule numbers refer to ASD-STE100 Issue 9 (2025-01-15). The
+// text is a summary in our own words. Always use the official
+// specification as the reference.
 
 export const MODULES = [
   {
@@ -12,8 +13,8 @@ export const MODULES = [
     summary:
       "ASD-STE100 is a controlled language for technical documentation. It limits grammar and vocabulary so that every reader, including non-native speakers, gets one clear meaning.",
     body: [
-      "Simplified Technical English (STE) started in the aerospace industry in the 1980s. Today the ASD Simplified Technical English Maintenance Group (STEMG) maintains it as the specification ASD-STE100. Many industries use it: defense, energy, automotive, medical devices, rail, and software.",
-      "The specification has two parts: a set of writing rules and a dictionary. The dictionary lists approved words, each with one approved meaning and one part of speech. It also lists unapproved words, with approved alternatives.",
+      "Simplified Technical English (STE) started in the aerospace industry in the 1980s. Today the ASD Simplified Technical English Maintenance Group (STEMG) maintains it as the specification ASD-STE100. The current issue is Issue 9 (January 2025). It is free of charge from the STEMG website. Many industries use STE: aerospace, defense, energy, automotive, medical devices, rail, and software.",
+      "The specification has two parts: the writing rules (Part 1) and the dictionary (Part 2). The dictionary has approximately 900 approved words. Each approved word has one approved meaning and one part of speech. The dictionary also lists many words that are not approved, with approved alternatives.",
       "STE also lets you use technical names (for example, names of parts and tools) and technical verbs (for example, \"drill\" or \"ream\") that are specific to your industry. Your organization must control these words in a glossary.",
     ],
     benefits: [
@@ -67,6 +68,7 @@ export const MODULES = [
       "Look up each word in the STE dictionary. If a word is not approved, the dictionary usually gives an approved alternative.",
       "An approved word is approved only as the part of speech that the dictionary shows. For example, \"test\" can be a noun and a verb, but many words are approved only as a noun or only as a verb.",
       "Use the shortest and most common words. Use American English spelling (for example, \"color\", not \"colour\").",
+      "Some words are not approved, although they look simple: \"should\", \"may\", \"would\", \"need\", \"every\", \"main\", \"old\", \"never\" and \"press\". Some long words are approved: \"approximately\", \"sufficient\" and \"subsequently\". Always look in the dictionary. Do not guess.",
     ],
     rules: [
       {
@@ -83,9 +85,9 @@ export const MODULES = [
       },
       {
         rule: "Use the approved part of speech",
-        explain: "Do not use a noun as a verb if the dictionary does not permit it.",
-        bad: "Torque the bolt.  (correct only if your organization approved \"torque\" as a technical verb)",
-        good: "Tighten the bolt to a torque of 25 N·m.",
+        explain: "Use an approved word only as the part of speech that the dictionary gives (Rule 1.2). For example, OIL is a technical noun, but \"oil\" is not approved as a verb.",
+        bad: "Oil the hinges.",
+        good: "Lubricate the hinges.",
       },
       {
         rule: "Use technical names consistently",
@@ -99,7 +101,7 @@ export const MODULES = [
         q: "Which sentence uses STE-style words?",
         options: ["Make sure that the valve is closed.", "Ensure the valve is closed.", "Verify valve closure.", "Ascertain that the valve is shut."],
         answer: 0,
-        explain: "\"Ensure\", \"verify\" and \"ascertain\" are not STE words. \"Make sure\" is the approved form.",
+        explain: "\"Ensure\", \"verify\" and \"ascertain\" are not approved. The dictionary gives MAKE SURE as the alternative for all three.",
       },
       {
         q: "Which word is the best STE replacement for \"commence\"?",
@@ -108,48 +110,67 @@ export const MODULES = [
         explain: "Use the short, common word: start.",
       },
       {
+        q: "Which of these words is approved in STE?",
+        options: ["approximately", "should", "every", "need"],
+        answer: 0,
+        explain: "APPROXIMATELY is approved. \"Should\" (use MUST), \"every\" (use ALL or EACH) and \"need\" (use NECESSARY) are not approved.",
+      },
+      {
         q: "Which spelling does STE use?",
         options: ["American English", "British English", "Either, if consistent", "The writer's local spelling"],
         answer: 0,
-        explain: "STE uses American English spelling.",
+        explain: "Rule 1.14: use American English spelling, unless other official directives tell you differently.",
       },
     ],
   },
   {
     id: "noun-clusters",
-    title: "Noun clusters",
+    title: "Multi-word nouns",
     section: "Section 2",
     minutes: 5,
-    summary: "Do not use more than three nouns in a noun cluster. Break long clusters with prepositions or make a hyphenated technical name.",
+    summary: "Write multi-word nouns of no more than three words. When an official technical noun is longer, write it in full, then use a shorter form or hyphens.",
     body: [
-      "A noun cluster is a group of nouns (sometimes with adjectives) that together name one thing, for example \"engine oil pressure\". Long clusters are difficult to understand and to translate, because the reader cannot see which word modifies which.",
-      "If a technical name has more than three words, you can use hyphens to show which words go together, or you can write the cluster with prepositions.",
+      "A multi-word noun (in older issues, a \"noun cluster\") is a group of words that together name one thing, for example \"engine oil pressure\". Long multi-word nouns are difficult to understand and to translate, because the reader cannot see which word modifies which.",
+      "Rule 2.1: write multi-word nouns of no more than three words. If the long noun is not an official name, divide it with prepositions or a clause.",
+      "Rule 2.2: some long names are official technical nouns (for example, from an engineering drawing or a parts catalog). You cannot change these names. Write the name in full the first time. Then use a shorter form (with an explanation), or use hyphens between words that make one unit.",
     ],
     rules: [
       {
-        rule: "Maximum three nouns",
-        explain: "Divide long noun clusters.",
+        rule: "Maximum three words (Rule 2.1)",
+        explain: "Divide long multi-word nouns that are not official names.",
         bad: "Read the engine oil pressure indicator scale.",
         good: "Read the scale on the indicator for engine oil pressure.",
       },
       {
-        rule: "Use hyphens to show relations",
-        explain: "Hyphens show which words make one unit in a technical name.",
-        bad: "the main landing gear door actuator",
-        good: "the actuator of the main-landing-gear door",
+        rule: "Long technical nouns (Rule 2.2)",
+        explain: "Write the official name in full one time. Then give a shorter form and use it in the remaining text.",
+        bad: "Disconnect the cabin pressure controller test harness connector. Then clean the cabin pressure controller test harness connector.",
+        good: "Disconnect the cabin pressure controller test harness connector (referred to as the \"harness connector\"). Then clean the harness connector.",
+        allow: ["noun-cluster"],
       },
     ],
     quiz: [
       {
-        q: "Which is the best STE version of \"flight control system hydraulic pressure monitoring unit\"?",
+        q: "The parts catalog name of a part has six words. What does Rule 2.2 tell you to do?",
         options: [
-          "the unit that monitors the hydraulic pressure in the flight control system",
-          "the flight control system hydraulic pressure monitoring unit",
-          "the FCS HP monitor",
-          "the monitoring unit hydraulic pressure flight control",
+          "Write it in full, then use a shorter form or hyphens",
+          "Remove words until the name has three words",
+          "Make your own abbreviation and do not write the full name",
+          "Use a different name in each procedure",
         ],
         answer: 0,
-        explain: "Break the cluster with prepositions and a clause so that each relation is clear. Do not invent abbreviations.",
+        explain: "You cannot change an official technical noun. Write it in full the first time, then make it clear with a shorter form or with hyphens.",
+      },
+      {
+        q: "Which is the best STE version of \"Read the engine oil pressure indicator scale\" (not an official name)?",
+        options: [
+          "Read the scale on the indicator for engine oil pressure.",
+          "Read the engine oil pressure indicator scale.",
+          "Read the EOP indicator scale.",
+          "Read the scale engine oil pressure indicator.",
+        ],
+        answer: 0,
+        explain: "Divide the multi-word noun with prepositions so that each relation is clear. Do not make new abbreviations.",
       },
     ],
   },
@@ -160,9 +181,10 @@ export const MODULES = [
     minutes: 8,
     summary: "Use only the approved verb forms. Use the active voice. Do not use -ing verb forms.",
     body: [
-      "STE permits a small set of verb forms: the infinitive, the imperative (for commands), the simple present, the simple past, the future, and the past participle (only as an adjective or with \"is/are\" in descriptive text, where necessary).",
-      "Do not use the progressive (-ing) forms, such as \"is operating\". Do not use the perfect tenses, such as \"has opened\" or \"had removed\".",
-      "Use the active voice in procedures. Use the active voice as much as possible in descriptive text. Use the passive voice in descriptive text only when you do not know who or what does the action.",
+      "Rule 3.2 permits only these verb forms: the infinitive, the imperative (command), the simple present, the simple past, the simple future, and the past participle used as an adjective (Rule 3.3).",
+      "Do not use auxiliary verbs to make complex verb constructions (Rule 3.4). Thus, do not use perfect tenses (\"has opened\", \"had removed\") or progressive forms (\"is operating\").",
+      "Use the -ing form of a verb only as a technical noun or as a modifier in a technical noun (Rule 3.5), for example \"landing gear\". Only a few approved words have an -ing form: lighting, opening, routing, servicing, mating, missing, remaining, something and during.",
+      "Rule 3.6: use the active voice. In descriptive writing, you can use the passive voice only when it is necessary, for example when you do not know who or what does the action.",
       "Use a verb to show an action. Do not hide the action in a noun (\"do an inspection of\" → \"examine\").",
     ],
     rules: [
@@ -182,7 +204,7 @@ export const MODULES = [
         rule: "No perfect tenses",
         explain: "Use the simple past or simple present.",
         bad: "When the light has come on, release the switch.",
-        good: "When the light comes on, release the switch.",
+        good: "When the light is on, release the switch.",
       },
       {
         rule: "Use verbs for actions",
@@ -219,7 +241,7 @@ export const MODULES = [
     summary: "Write about one topic in each sentence. Do not omit words to make sentences shorter. Use vertical lists for complex text.",
     body: [
       "Each sentence must give one idea. If a sentence contains many ideas, divide it.",
-      "Do not leave out articles (a, an, the), verbs or other words to make a sentence shorter. Telegraphic text is difficult for non-native readers and for translators.",
+      "Do not omit words or use contractions to make your sentences shorter (Rule 4.2). When applicable, use an article (the, a, an) or a demonstrative adjective (this, these) before a noun (Rule 4.5). Telegraphic text is difficult for non-native readers and for translators.",
       "Use connecting words (such as \"thus\", \"but\", \"then\") to join sentences logically. Use vertical lists to show items, conditions or sequences.",
     ],
     rules: [
@@ -228,6 +250,12 @@ export const MODULES = [
         explain: "Keep articles and verbs.",
         bad: "Remove cover, discard gasket.",
         good: "Remove the cover. Discard the gasket.",
+      },
+      {
+        rule: "No contractions (Rule 4.2)",
+        explain: "Write the full form.",
+        bad: "Don't touch the terminals.",
+        good: "Do not touch the terminals.",
       },
       {
         rule: "Use vertical lists",
@@ -256,6 +284,7 @@ export const MODULES = [
       "Do not use more than 20 words in a procedural sentence.",
       "Write only one instruction in each sentence, unless the reader must do two or more actions at the same time (\"Hold the lever and turn the knob.\").",
       "If the reader must do the instruction only under a condition, write the condition first, then the instruction: \"If the seal is damaged, replace it.\"",
+      "Write notes only to give information, not instructions (Rule 5.5). In a note, the maximum sentence length is 25 words, because a note gives information.",
       "Use numbered steps for sequences. Put the steps in the order that the reader does them.",
     ],
     rules: [
@@ -263,7 +292,7 @@ export const MODULES = [
         rule: "Maximum 20 words",
         explain: "Divide long instructions.",
         bad: "Prior to removing the access panel located on the left side of the unit, make sure that the main power switch has been set to the OFF position.",
-        good: "Set the main power switch to OFF. Then remove the access panel on the left side of the unit.",
+        good: "Set the power switch to OFF. Then remove the access panel on the left side of the unit.",
       },
       {
         rule: "One instruction per sentence",
@@ -282,6 +311,12 @@ export const MODULES = [
         explain: "Tell the reader directly what to do.",
         bad: "The technician should then lubricate the shaft.",
         good: "Lubricate the shaft.",
+      },
+      {
+        rule: "Notes give information only (Rule 5.5)",
+        explain: "Readers often skip notes. Put each instruction in a step.",
+        bad: "NOTE: You must discard the seal after removal.",
+        good: "Discard the seal.\nNOTE: A new seal is in the repair kit.",
       },
     ],
     quiz: [
@@ -345,13 +380,13 @@ export const MODULES = [
     title: "Safety instructions",
     section: "Section 7",
     minutes: 7,
-    summary: "Start a warning or caution with a clear command. Then give the risk. Notes give information only.",
+    summary: "Identify the level of risk. Start with a clear command or condition. Then give the risk or the possible result.",
     body: [
-      "A WARNING tells the reader about a risk of injury or death. A CAUTION tells the reader about a risk of damage to equipment. A NOTE gives information that is useful but not a command.",
-      "Start a warning or a caution with a simple, clear command. Then, if necessary, give an explanation of the risk.",
-      "Put the warning or caution immediately before the step that it applies to.",
-      "Do not put commands in notes. Do not use warnings or cautions for information that is not about safety.",
-      "Your organization can use a standard (for example ANSI Z535 or ISO 3864) for the format and signal words. STE controls the language inside the message.",
+      "Rule 7.1: use an applicable word (for example \"warning\" or \"caution\") or a symbol to show the level of risk immediately.",
+      "Rule 7.2: start a safety instruction with a clear and accurate command or condition.",
+      "Rule 7.3: give an explanation to show the risk or the possible result.",
+      "STE does not define the signal words or the format. Use the specification of your industry or organization (for example S1000D, ATA iSpec 2200, ANSI Z535 or ISO 3864). In most of these, a WARNING is about a risk of injury or death, and a CAUTION is about a risk of damage to equipment.",
+      "Do not put instructions in notes (Rule 5.5). Do not use warnings or cautions for information that is not about safety.",
     ],
     rules: [
       {
@@ -361,37 +396,38 @@ export const MODULES = [
         good: "WARNING: Disconnect the power before you open the cabinet. The cabinet has high voltage that can kill you.",
       },
       {
-        rule: "No commands in notes",
-        explain: "Readers often skip notes.",
-        bad: "NOTE: You must discard the seal after removal.",
-        good: "Discard the seal.\nNOTE: A new seal is in the repair kit.",
+        rule: "A condition can come first (Rule 7.2)",
+        explain: "If the reader must know a condition, start with it. Then give the command and the risk.",
+        bad: "WARNING: Hot oil can burn your skin if you open the cap when the engine is hot.",
+        good: "WARNING: If the engine is hot, do not open the cap. Hot oil can cause burns.",
       },
     ],
     quiz: [
       {
-        q: "What must the first part of a warning be?",
-        options: ["A clear command", "A description of the hazard", "The word DANGER", "A reference to the safety manual"],
+        q: "How must a safety instruction start?",
+        options: ["With a clear command or condition", "With a description of the hazard", "With the word DANGER", "With a reference to the safety manual"],
         answer: 0,
-        explain: "Start with a command, then explain the risk.",
+        explain: "Rule 7.2: start with a clear and accurate command or condition. Then explain the risk (Rule 7.3).",
       },
       {
-        q: "Which type of notice is for a risk of damage to equipment?",
+        q: "In most technical publication specifications, which notice is for a risk of damage to equipment?",
         options: ["CAUTION", "WARNING", "NOTE", "DANGER"],
         answer: 0,
-        explain: "WARNING = risk to persons. CAUTION = risk to equipment. NOTE = information.",
+        explain: "STE does not define the signal words, but most specifications use WARNING for a risk to persons and CAUTION for a risk to equipment.",
       },
     ],
   },
   {
     id: "punctuation",
-    title: "Punctuation and word counts",
+    title: "Punctuation and word count",
     section: "Section 8",
     minutes: 5,
-    summary: "Use simple punctuation. Do not use semicolons. Know how to count words.",
+    summary: "Use standard punctuation, but not the semicolon. Know how to count words.",
     body: [
-      "Use the full stop (period), comma, colon, hyphen, parentheses and quotation marks as in standard English. Do not use semicolons.",
-      "Use parentheses only for specific purposes, such as references to figures or to identify an item on an illustration. Do not use parentheses for extra explanations inside a sentence.",
-      "Word count: a number and its unit (10 mm) count as one word. A hyphenated word counts as one word. Each word in a technical name counts as a word.",
+      "Rule 8.1: you can use all standard English punctuation marks, but not the semicolon (;).",
+      "Rule 8.2: use hyphens to connect words that are directly related.",
+      "Rule 8.3: you can use parentheses for references to illustrations or text, to identify items, to identify work steps, for abbreviations, for singular and plural forms together, to explain words or a part of a sentence, and to include an alternative.",
+      "Word count (Rules 8.4 to 8.7): text in parentheses counts as one word. These also count as one word: a number, a number with its unit (10 mm), an abbreviation, an alphanumeric identifier, quoted text, a title, heading, placard or label, and a proper noun. A hyphenated word counts as one word. In a vertical list, a colon has the same effect as a period.",
     ],
     rules: [
       {
@@ -401,10 +437,10 @@ export const MODULES = [
         good: "Close the valve. The pressure decreases.",
       },
       {
-        rule: "No contractions",
-        explain: "Write the full form.",
-        bad: "Don't touch the terminals.",
-        good: "Do not touch the terminals.",
+        rule: "Hyphens connect related words",
+        explain: "A hyphen shows that the words make one unit. A hyphenated word counts as one word.",
+        bad: "Install a two way valve.",
+        good: "Install a two-way valve.",
       },
     ],
     quiz: [
@@ -413,6 +449,53 @@ export const MODULES = [
         options: ["5", "6", "4", "7"],
         answer: 0,
         explain: "Tighten / the / nut / to / 25 N·m = 5. The number with its unit counts as one word.",
+      },
+      {
+        q: "How do you count text in parentheses?",
+        options: ["As one word", "Each word separately", "It does not count", "As two words"],
+        answer: 0,
+        explain: "Rule 8.5: when you put text in parentheses, it counts as one word in that sentence.",
+      },
+    ],
+  },
+  {
+    id: "writing-practices",
+    title: "Writing practices",
+    section: "Section 9",
+    minutes: 6,
+    summary: "Change the sentence construction when a word-for-word change does not work. Do not make phrasal verbs. Use a consistent style.",
+    body: [
+      "Rule 9.1: sometimes you cannot replace a word with its approved alternative and keep a good sentence. Then write the sentence with a different construction.",
+      "Rule 9.2: use each approved word correctly, with its approved meaning and part of speech.",
+      "Rule 9.3: when you use two words together, do not make phrasal verbs. A phrasal verb is a verb with a preposition or adverb that has a different meaning, for example \"turn off\", \"switch off\" or \"carry out\". These are difficult for non-native readers.",
+      "Rule 9.4: when you select terminology or wording, always use a consistent style.",
+    ],
+    rules: [
+      {
+        rule: "No phrasal verbs (Rule 9.3)",
+        explain: "Use one approved verb.",
+        bad: "Turn off the pump and carry out the test.",
+        good: "Stop the pump. Then do the test.",
+      },
+      {
+        rule: "Change the construction (Rule 9.1)",
+        explain: "A direct word replacement can give a bad sentence. Write the sentence again.",
+        bad: "There is a requirement for two persons for this task.",
+        good: "Two persons are necessary for this task.",
+      },
+      {
+        rule: "Consistent style (Rule 9.4)",
+        explain: "Use the same words and the same structure for the same thing.",
+        bad: "Push the TEST button. Then press the RESET pushbutton.",
+        good: "Push the TEST button. Then push the RESET button.",
+      },
+    ],
+    quiz: [
+      {
+        q: "Which instruction does not use a phrasal verb?",
+        options: ["Stop the engine.", "Shut down the engine.", "Turn off the engine.", "Switch off the engine."],
+        answer: 0,
+        explain: "\"Shut down\", \"turn off\" and \"switch off\" are phrasal verbs, and they are not approved. Use STOP.",
       },
     ],
   },
@@ -474,7 +557,7 @@ export const MODULES = [
     summary: "A successful STE program has a scope, a controlled glossary, trained writers, tools, and measurable goals.",
     body: [
       "1. Define the scope. Decide which documents must use STE (for example maintenance manuals, work instructions, safety data). Start with one product line.",
-      "2. Get the specification. Download the current issue of ASD-STE100 from the ASD STEMG website. Make sure that all writers use the same issue.",
+      "2. Get the specification. Download the current issue of ASD-STE100 (Issue 9, January 2025) free of charge from the STEMG website, asd-ste100.org. Make sure that all writers use the same issue.",
       "3. Make a controlled glossary of technical names and technical verbs. Give each part one name. Record unapproved synonyms and the approved term to use instead. Load the glossary into this app in Organization settings.",
       "4. Train writers and reviewers. Use this app for self-study and practice. Consider official STE training from a qualified trainer for lead writers.",
       "5. Use tools. Use a checker in the writing workflow. A checker finds many problems, but a trained person must make the final decisions.",
@@ -486,7 +569,7 @@ export const MODULES = [
         rule: "Control your technical names",
         explain: "Inconsistent names are a major cause of errors and translation cost.",
         bad: "hose / pipe / line / tube (for the same part)",
-        good: "fuel line (one approved name, listed in the glossary)",
+        good: "fuel line (the one approved name in the glossary)",
       },
     ],
     quiz: [

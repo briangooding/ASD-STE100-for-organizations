@@ -1,7 +1,7 @@
-import { checkText, RULES } from "./checker.js";
+import { checkText, RULES, DEFAULT_OPTIONS } from "./checker.js";
 import { MODULES } from "./data/lessons.js";
 import { EXERCISES } from "./data/exercises.js";
-import { DICTIONARY } from "./data/dictionary.js";
+import { DICTIONARY, NOT_LISTED, COMMONLY_MISTAKEN, DICTIONARY_SOURCE } from "./data/dictionary.js";
 import { TIPS, REFERENCE, SAMPLE_TEXT } from "./data/reference.js";
 import * as store from "./store.js";
 
@@ -37,9 +37,43 @@ function shuffle(arr) {
   return a;
 }
 
+// Optional full dictionary, converted by the organization from its own copy
+// of the specification (tools/import_ste_dictionary.py). It is not part of
+// this repository.
+let fullDictionary = null;
+
+async function loadFullDictionary() {
+  try {
+    const res = await fetch("ste-dictionary.json", { cache: "no-cache" });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (!Array.isArray(data.entries) || !data.entries.length) return false;
+    // Keep our notes for words that are in both lists.
+    const notes = new Map(DICTIONARY.map((d) => [d.word, d]));
+    fullDictionary = {
+      source: data.source || "Imported dictionary",
+      entries: data.entries
+        .filter((e) => e && typeof e.word === "string")
+        .map((e) => ({ ...e, note: notes.get(e.word)?.note, status: "unapproved" })),
+    };
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function wordList() {
+  if (!fullDictionary) return DEFAULT_OPTIONS.dictionary;
+  const words = new Set(fullDictionary.entries.map((e) => e.word));
+  // Our curated phrase patterns (for example "check that") are not headwords in the dictionary.
+  const extra = DICTIONARY.filter((d) => !words.has(d.word)).map((d) => ({ ...d, status: "unapproved" }));
+  return [...fullDictionary.entries, ...extra, ...NOT_LISTED.map((d) => ({ ...d, status: "not-listed" }))];
+}
+
 function checkerOptions(extra = {}) {
   const org = store.getState().org;
   return {
+    dictionary: wordList(),
     approvedTerms: org.approvedTerms,
     orgTerms: org.orgTerms,
     disabledRules: org.disabledRules,
@@ -599,41 +633,63 @@ function viewQuiz() {
   main.querySelector("#new-quiz").addEventListener("click", viewQuiz);
 }
 
+const POS_LABEL = { n: "noun", v: "verb", adj: "adjective", adv: "adverb", prep: "preposition", conj: "conjunction", pron: "pronoun" };
+
 function viewDictionary() {
   const org = store.getState().org;
+  const steWords = fullDictionary ? fullDictionary.entries : DICTIONARY;
+  const steSource = fullDictionary ? fullDictionary.source : `${DICTIONARY_SOURCE.title} ${DICTIONARY_SOURCE.issue} (selection)`;
   let tab = "all";
   main.replaceChildren(
     h(`
     <h1>Word list</h1>
-    <p class="lead">Find a better word. This list has common non-STE words with alternatives, your organization's terms, and your approved technical names.</p>
-    <div class="notice warn small">This starter list is a training subset. It is not the official ASD-STE100 dictionary. Always confirm words against the current issue of the specification.</div>
+    <p class="lead">Find the approved word. Search the words that STE does not approve, the approved words that people often avoid by mistake, your organization's terms, and your approved technical names.</p>
+    <div class="notice small">${
+      fullDictionary
+        ? `The checker uses the full dictionary that your organization imported (${esc(fullDictionary.source)}, ${steWords.length} words that are not approved in any part of speech).`
+        : `The ${DICTIONARY.length} STE entries were checked against the dictionary of ${DICTIONARY_SOURCE.title} ${DICTIONARY_SOURCE.issue} (${DICTIONARY_SOURCE.date}). They are a selection of common words, not the full dictionary. Get the free specification from <a href="https://www.asd-ste100.org" target="_blank" rel="noopener">asd-ste100.org</a>.`
+    }</div>
     <div class="field"><label for="dict-q">Search</label><input id="dict-q" type="search" placeholder="Type a word, for example: ensure"></div>
     <div class="tabs" role="tablist">
       <button role="tab" data-tab="all" aria-selected="true">All</button>
-      <button role="tab" data-tab="dictionary" aria-selected="false">Starter list (${DICTIONARY.length})</button>
+      <button role="tab" data-tab="ste" aria-selected="false">Not approved (${steWords.length})</button>
+      <button role="tab" data-tab="notlisted" aria-selected="false">Not in the dictionary (${NOT_LISTED.length})</button>
+      <button role="tab" data-tab="mistaken" aria-selected="false">Approved words (${COMMONLY_MISTAKEN.length})</button>
       <button role="tab" data-tab="org" aria-selected="false">Organization terms (${org.orgTerms.length})</button>
-      <button role="tab" data-tab="approved" aria-selected="false">Approved technical names (${org.approvedTerms.length})</button>
+      <button role="tab" data-tab="approved" aria-selected="false">Technical names (${org.approvedTerms.length})</button>
     </div>
     <div class="table-wrap" id="dict-table"></div>
+    <p class="muted small" id="dict-count"></p>
   `)
   );
   const q = main.querySelector("#dict-q");
+  const pos = (r) => (r.pos || []).map((p) => POS_LABEL[p] || p).join(", ");
   const render = () => {
     const term = q.value.trim().toLowerCase();
     const rows = [];
-    if (tab === "all" || tab === "dictionary") DICTIONARY.forEach((d) => rows.push({ ...d, source: "Starter list", kind: "avoid" }));
-    if (tab === "all" || tab === "org") org.orgTerms.forEach((d) => rows.push({ ...d, source: org.name || "Organization", kind: "avoid" }));
-    if (tab === "all" || tab === "approved") org.approvedTerms.forEach((w) => rows.push({ word: w, alternatives: [], note: "Approved technical name", source: org.name || "Organization", kind: "ok" }));
+    const want = (t) => tab === "all" || tab === t;
+    if (want("ste")) steWords.forEach((d) => rows.push({ ...d, source: steSource, kind: "avoid" }));
+    if (want("notlisted")) NOT_LISTED.forEach((d) => rows.push({ ...d, source: "Not in the STE dictionary", kind: "avoid" }));
+    if (want("mistaken")) COMMONLY_MISTAKEN.forEach((d) => rows.push({ ...d, alternatives: [], source: `${DICTIONARY_SOURCE.title} ${DICTIONARY_SOURCE.issue}`, kind: "ok" }));
+    if (want("org")) org.orgTerms.forEach((d) => rows.push({ ...d, source: org.name || "Organization", kind: "avoid" }));
+    if (want("approved")) org.approvedTerms.forEach((w) => rows.push({ word: w, alternatives: [], note: "Approved technical name", source: org.name || "Organization", kind: "ok" }));
     const filtered = rows
-      .filter((r) => !term || r.word.toLowerCase().includes(term) || (r.alternatives || []).some((a) => a.toLowerCase().includes(term)) || (r.note || "").toLowerCase().includes(term))
-      .sort((a, b) => a.word.localeCompare(b.word));
-    main.querySelector("#dict-table").innerHTML = filtered.length
-      ? `<table class="data"><thead><tr><th>Word</th><th>Use instead</th><th>Note</th><th>Source</th></tr></thead><tbody>${filtered
+      .filter((r) => !term || r.word.toLowerCase().includes(term) || (r.alternatives || []).some((a) => a.toLowerCase().includes(term)))
+      .sort((a, b) => {
+        // Exact and prefix matches first.
+        const rank = (r) => (r.word === term ? 0 : r.word.startsWith(term) ? 1 : 2);
+        return rank(a) - rank(b) || a.word.localeCompare(b.word);
+      });
+    const shown = filtered.slice(0, 300);
+    main.querySelector("#dict-table").innerHTML = shown.length
+      ? `<table class="data"><thead><tr><th>Word</th><th>Use instead</th><th>Note</th><th>Source</th></tr></thead><tbody>${shown
           .map(
-            (r) => `<tr><td>${r.kind === "avoid" ? `<span class="strike">${esc(r.word)}</span>` : `<strong>${esc(r.word)}</strong> <span class="badge done">approved</span>`}</td><td><strong>${esc((r.alternatives || []).join(", ")) || "–"}</strong></td><td class="muted">${esc(r.note)}</td><td class="small muted">${esc(r.source)}</td></tr>`
+            (r) => `<tr><td>${r.kind === "avoid" ? `<span class="strike">${esc(r.word)}</span>` : `<strong>${esc(r.word)}</strong> <span class="badge done">approved</span>`}${pos(r) ? `<div class="small muted">${esc(pos(r))}</div>` : ""}</td><td><strong>${esc((r.alternatives || []).join(", ")) || "–"}</strong></td><td class="muted">${esc(r.note || "")}</td><td class="small muted">${esc(r.source)}</td></tr>`
           )
           .join("")}</tbody></table>`
-      : `<p class="muted">No words found.${tab !== "dictionary" && !org.orgTerms.length && !org.approvedTerms.length ? ` Add terms in <a href="#/org">Organization settings</a>.` : ""}</p>`;
+      : `<p class="muted">No words found.${tab === "org" || tab === "approved" ? ` Add terms in <a href="#/org">Organization settings</a>.` : ""}</p>`;
+    main.querySelector("#dict-count").textContent =
+      filtered.length > shown.length ? `Showing ${shown.length} of ${filtered.length} words. Type to search.` : `${filtered.length} word${filtered.length === 1 ? "" : "s"}.`;
   };
   q.addEventListener("input", render);
   main.querySelectorAll(".tabs button").forEach((b) =>
@@ -855,9 +911,7 @@ document.getElementById("nav-toggle").addEventListener("click", (e) => {
 window.addEventListener("hashchange", route);
 updateHeader();
 route();
-store.loadDeployedOrgConfig().then((loaded) => {
-  if (loaded) {
-    updateHeader();
-    route();
-  }
+Promise.all([store.loadDeployedOrgConfig(), loadFullDictionary()]).then(([org, dict]) => {
+  if (org) updateHeader();
+  if (org || dict) route();
 });

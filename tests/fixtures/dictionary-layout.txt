@@ -1,0 +1,27 @@
+Made-up sample in the layout of "pdftotext -layout" output, for tests only.
+It is not text from the specification.
+
+Issue 9                 Part 2 - Dictionary            Page 2-0-1
+2025-01-15
+
+Word               Approved meaning/
+(part of speech)   ALTERNATIVES             STE EXAMPLE            Non-STE example
+ADJUST (v),        To change a setting      ADJUST THE KNOB.
+ADJUSTS,           sample text
+ADJUSTED,
+ADJUSTED
+assist (v)         HELP (v)                 HELP THE CREW.         Assist the crew.
+BE (v),            1. To exist              THE UNIT IS
+IS, WAS,                                    CLEAN.
+(also ARE, WERE)
+commence (v)       START (v)                START THE PUMP.        Commence pumping.
+coax (v)           CAREFULLY MOVE           CAREFULLY MOVE         Coax the part.
+                   CAREFULLY REMOVE         THE PART.
+prior to           BEFORE (conj)            BEFORE YOU START,      Prior to start, wait.
+(prep)                                      WAIT.
+REMAINING (adj)    That stays               DISCARD THE
+                                            REMAINING FLUID.
+remain (v)         STAY (v)                 STAY CLEAR.            Remain clear.
+TEST (v),          To examine               TEST THE UNIT.
+TESTS,
+test (n)           CHECK (n)                DO A CHECK.            Do a test.

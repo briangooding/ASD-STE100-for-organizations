@@ -1,2 +1,6 @@
 node_modules/
 .DS_Store
+# Full STE dictionary converted from your own copy of the specification.
+# ASD copyright: do not publish it. See tools/import_ste_dictionary.py.
+ste-dictionary.json
+*.pdf

@@ -7,7 +7,9 @@
 //
 // The module has no DOM dependencies, so it runs in the browser and in Node.
 
-import { DICTIONARY, AMBIGUOUS_MODALS } from "./data/dictionary.js";
+import { DICTIONARY, NOT_LISTED } from "./data/dictionary.js";
+
+const POS_NAMES = { n: "noun", v: "verb", adj: "adjective", adv: "adverb", prep: "preposition", conj: "conjunction", pron: "pronoun" };
 
 export const DEFAULT_OPTIONS = {
   mode: "auto", // "auto" | "procedural" | "descriptive"
@@ -15,29 +17,29 @@ export const DEFAULT_OPTIONS = {
   maxDescriptiveWords: 25,
   maxParagraphSentences: 6,
   maxNounCluster: 3,
-  dictionary: DICTIONARY,
+  dictionary: [...DICTIONARY.map((d) => ({ ...d, status: "unapproved" })), ...NOT_LISTED.map((d) => ({ ...d, status: "not-listed" }))],
   orgTerms: [], // extra words to flag: [{ word, alternatives, note }]
   approvedTerms: [], // organization technical names that are always allowed
   disabledRules: [], // rule ids to skip
 };
 
 export const RULES = {
-  "sentence-length": { title: "Sentence length", section: "Sections 5 and 6" },
-  "paragraph-length": { title: "Paragraph length", section: "Section 6" },
-  "unapproved-word": { title: "Non-STE word", section: "Section 1" },
-  "org-term": { title: "Organization term", section: "Organization style" },
-  "ing-form": { title: "-ing form", section: "Section 3" },
-  "passive-voice": { title: "Passive voice", section: "Section 3" },
-  "multiple-instructions": { title: "More than one instruction", section: "Section 5" },
-  "condition-first": { title: "Condition after the instruction", section: "Section 5" },
-  "noun-cluster": { title: "Noun cluster", section: "Section 2" },
-  "safety-command": { title: "Safety instruction", section: "Section 7" },
-  "note-command": { title: "Command in a note", section: "Section 7" },
-  "contraction": { title: "Contraction", section: "Section 9" },
-  "semicolon": { title: "Semicolon", section: "Section 8" },
-  "ambiguous-modal": { title: "Ambiguous verb", section: "Best practice" },
-  "progressive-tense": { title: "Progressive tense", section: "Section 3" },
-  "perfect-tense": { title: "Perfect tense", section: "Section 3" },
+  // Rule numbers refer to ASD-STE100 Issue 9.
+  "sentence-length": { title: "Sentence length", section: "Rules 5.1, 6.3" },
+  "paragraph-length": { title: "Paragraph length", section: "Rule 6.6" },
+  "unapproved-word": { title: "Non-STE word", section: "Rules 1.1–1.4" },
+  "org-term": { title: "Organization term", section: "Rules 1.8, 1.11" },
+  "ing-form": { title: "-ing form", section: "Rule 3.5" },
+  "passive-voice": { title: "Passive voice", section: "Rule 3.6" },
+  "multiple-instructions": { title: "More than one instruction", section: "Rule 5.2" },
+  "condition-first": { title: "Condition after the instruction", section: "Rule 5.4" },
+  "noun-cluster": { title: "Multi-word noun", section: "Rules 2.1, 2.2" },
+  "safety-command": { title: "Safety instruction", section: "Rule 7.2" },
+  "note-command": { title: "Instruction in a note", section: "Rule 5.5" },
+  "contraction": { title: "Contraction", section: "Rule 4.2" },
+  "semicolon": { title: "Semicolon", section: "Rule 8.1" },
+  "progressive-tense": { title: "Progressive tense", section: "Rules 3.2, 3.5" },
+  "perfect-tense": { title: "Perfect tense", section: "Rules 3.2, 3.4" },
 };
 
 // Common verbs that start an instruction. Includes some non-STE verbs
@@ -92,7 +94,8 @@ const ING_EXCEPTIONS = new Set(
   packing padding piping plating coating coatings grounding bonding
   heading headings spacing spacings timing rating ratings mounting mountings
   bedding sealing ceiling flooring railing railings clothing training
-  retaining cooling heating locking lighting plumbing scaffolding tooling`
+  retaining cooling heating locking lighting plumbing scaffolding tooling
+  routing servicing mating missing remaining troubleshooting`
     .split(/\s+/)
     .filter(Boolean)
 );
@@ -136,10 +139,20 @@ function escapeRe(s) {
 }
 
 // Build a regular expression that matches a word and its simple inflections.
+// Results are cached because the full dictionary has more than 1000 terms.
+const regexCache = new Map();
 export function termRegex(term) {
-  const t = term.toLowerCase().trim();
-  const L = "(?<![A-Za-z0-9])";
-  const R = "(?![A-Za-z0-9])";
+  const key = term.toLowerCase().trim();
+  if (!regexCache.has(key)) regexCache.set(key, buildTermRegex(key));
+  const re = regexCache.get(key);
+  re.lastIndex = 0;
+  return re;
+}
+
+function buildTermRegex(t) {
+  // A hyphenated word is one word (Rule 8.7), so do not match inside it.
+  const L = "(?<![A-Za-z0-9\\-])";
+  const R = "(?![A-Za-z0-9]|-[A-Za-z0-9])";
   if (/[^a-z]/.test(t)) {
     // Phrase or term with punctuation: exact match only, flexible spaces.
     const body = t.split(/\s+/).map(escapeRe).join("\\s+");
@@ -250,7 +263,13 @@ export function tokenize(sentenceText) {
   return tokens;
 }
 
-// STE word count. A number and its unit count as one word.
+// STE word count (Rules 8.5 to 8.7): text in parentheses, quoted text, a
+// number with its unit, and a hyphenated word each count as one word.
+export function steWordCount(sentenceText) {
+  const collapsed = sentenceText.replace(/\([^()]*\)|"[^"]*"|“[^”]*”/g, " X ");
+  return countWords(tokenize(collapsed));
+}
+
 export function countWords(tokens) {
   let count = 0;
   for (let i = 0; i < tokens.length; i++) {
@@ -349,7 +368,7 @@ export function checkText(text, userOptions = {}) {
 
   for (const s of sentences) {
     const tokens = tokenize(s.text);
-    const words = countWords(tokens);
+    const words = steWordCount(s.text);
     totalWords += words;
     const mode = sentenceMode(s, options);
     s.mode = mode;
@@ -374,7 +393,13 @@ export function checkText(text, userOptions = {}) {
     for (const d of flagged) {
       for (const [rs, re] of rangesOf(d.re, s.text)) {
         if (overlaps(protectedRanges, rs, re) || overlaps(wordHits, rs, re)) continue;
-        if (ING_EXCEPTIONS.has(s.text.slice(rs, re).toLowerCase())) continue;
+        const found = s.text.slice(rs, re);
+        if (ING_EXCEPTIONS.has(found.toLowerCase())) continue;
+        if (d.except && d.except.includes(found.toLowerCase())) continue;
+        const before = s.text.slice(0, rs).trim();
+        if (d.atSentenceStart && before && !/[,:]$/.test(before)) continue;
+        // "May" followed by a number is the month.
+        if (found === "May" && /^\s+\d/.test(s.text.slice(re))) continue;
         wordHits.push([rs, re]);
         const alt = (d.alternatives || []).join(", ");
         addWord(
@@ -383,19 +408,11 @@ export function checkText(text, userOptions = {}) {
           s,
           rs,
           re,
-          `"${s.text.slice(rs, re)}" is not ${d.source === "org" ? "in your organization's style" : "an STE word"}.` +
+          describeTerm(d, s.text.slice(rs, re)) +
             (alt ? ` Use: ${alt}.` : "") +
             (d.note ? ` ${d.note}` : ""),
           { suggestions: d.alternatives || [] }
         );
-      }
-    }
-
-    // Ambiguous modal verbs
-    for (const m of AMBIGUOUS_MODALS) {
-      for (const [rs, re] of rangesOf(new RegExp(`(?<![A-Za-z])${m.word}(?![A-Za-z])`, "gi"), s.text)) {
-        if (overlaps(protectedRanges, rs, re)) continue;
-        addWord("ambiguous-modal", "info", s, rs, re, `"${s.text.slice(rs, re)}": ${m.note}`);
       }
     }
 
@@ -475,7 +492,7 @@ export function checkText(text, userOptions = {}) {
         s,
         m.index,
         m.index + m[0].length,
-        `"${m[0]}" is a perfect tense. STE does not use perfect tenses. Use the simple past or simple present ("when the light comes on").`
+        `"${m[0]}" is a perfect tense. STE does not use perfect tenses. Use the simple present or simple past tense ("when the light is on").`
       );
     }
 
@@ -534,7 +551,7 @@ export function checkText(text, userOptions = {}) {
             s,
             rs,
             re,
-            `Possible noun cluster of ${run.length} words. Do not use more than ${options.maxNounCluster} nouns in a cluster. Use prepositions or a hyphenated technical name ("the pressure of the oil in the engine").`
+            `Possible multi-word noun of ${run.length} words. Write multi-word nouns of no more than ${options.maxNounCluster} words. If it is an official technical noun, write it in full, then use a shorter form or hyphens. Otherwise, use prepositions ("the pressure of the oil in the engine").`
           );
         }
       }
@@ -565,7 +582,7 @@ export function checkText(text, userOptions = {}) {
         "safety-command",
         "error",
         s,
-        `Start a ${s.blockType} with a clear, short command (for example "Do not touch the hot surface."). Then give the reason or risk.`
+        `Start a ${s.blockType} with a clear command or condition (for example "Disconnect the power before you open the cabinet."). Then give the risk or possible result (Rule 7.3).`
       );
     }
     if (s.blockType === "note" && (isInstruction(s.text) || /\bmust\b/i.test(s.text))) {
@@ -573,7 +590,7 @@ export function checkText(text, userOptions = {}) {
         "note-command",
         "warning",
         s,
-        "A note gives information only. Do not put a command in a note. Move the instruction into a step, a warning or a caution."
+        "Write notes only to give information, not instructions. Move the instruction into a step, a warning or a caution."
       );
     }
   }
@@ -618,6 +635,18 @@ export function checkText(text, userOptions = {}) {
     },
     score: score(counts, totalWords, sentences.length),
   };
+}
+
+function describeTerm(d, found) {
+  const alt = (d.alternatives || []).join(", ");
+  const pos = (d.pos || []).map((p) => POS_NAMES[p] || p).join(" or ");
+  let msg;
+  if (d.source === "org") msg = `"${found}" is not in your organization's style.`;
+  else if (d.status === "not-listed") msg = `"${found}" is not in the STE dictionary.`;
+  else msg = `"${found}" is not an approved STE word${pos ? ` (${pos})` : ""}.`;
+  if (alt) msg += ` Approved alternative${d.alternatives.length > 1 ? "s" : ""}: ${alt}.`;
+  if (d.note) msg += ` ${d.note}`;
+  return msg;
 }
 
 function severityRank(s) {

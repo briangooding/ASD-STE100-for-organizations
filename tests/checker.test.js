@@ -4,6 +4,8 @@ import { checkText, segment, countWords, tokenize, isInstruction, termRegex } fr
 import { EXERCISES } from "../js/data/exercises.js";
 import { MODULES } from "../js/data/lessons.js";
 import { normalizeOrg } from "../js/store.js";
+import { DICTIONARY, NOT_LISTED, COMMONLY_MISTAKEN } from "../js/data/dictionary.js";
+import { steWordCount } from "../js/checker.js";
 
 const rules = (text, opts) => checkText(text, opts).issues.map((i) => i.rule);
 
@@ -119,11 +121,48 @@ test("safety notices and notes", () => {
   assert.ok(rules("NOTE: You must wear gloves.").includes("note-command"));
 });
 
-test("contractions, semicolons and ambiguous modals", () => {
-  const r = rules("Don't open the valve; the pressure should decrease.");
-  assert.ok(r.includes("contraction"));
-  assert.ok(r.includes("semicolon"));
-  assert.ok(r.includes("ambiguous-modal"));
+test("contractions, semicolons and unapproved modal verbs", () => {
+  const r = checkText("Don't open the valve; the pressure should decrease.");
+  const ids = r.issues.map((i) => i.rule);
+  assert.ok(ids.includes("contraction"));
+  assert.ok(ids.includes("semicolon"));
+  assert.ok(r.issues.some((i) => i.rule === "unapproved-word" && i.match === "should" && i.message.includes("must")));
+});
+
+test("word list entries are well formed and unique", () => {
+  const seen = new Set();
+  for (const e of [...DICTIONARY, ...NOT_LISTED]) {
+    assert.ok(e.word && e.word === e.word.toLowerCase(), e.word);
+    assert.ok(Array.isArray(e.alternatives) && e.alternatives.length, e.word);
+    assert.ok(!seen.has(e.word), "duplicate " + e.word);
+    seen.add(e.word);
+  }
+  for (const e of DICTIONARY) assert.ok(Array.isArray(e.pos) && e.pos.length, e.word);
+  assert.ok(DICTIONARY.length >= 300);
+});
+
+test("approved Issue 9 words are not flagged", () => {
+  for (const m of COMMONLY_MISTAKEN) assert.ok(!DICTIONARY.some((d) => d.word === m.word), m.word);
+  const text = "Drain approximately 2 liters. Make sure that the quantity is sufficient. Contact customer services. Torque the plug. Do a check of the system. Add the oil very slowly. Subsequently, the unit stops.";
+  assert.deepEqual(rules(text).filter((r) => r === "unapproved-word"), []);
+});
+
+test("approved inflections, the month May and hyphenated words are not flagged", () => {
+  assert.ok(!rules("Discard the remaining fluid.").includes("unapproved-word"));
+  assert.ok(rules("The fluid must remain in the tank.").includes("unapproved-word"));
+  assert.ok(!rules("The change was made on May 5.").includes("unapproved-word"));
+  assert.ok(!rules("Install a two-way valve.").includes("unapproved-word"));
+});
+
+test("check is flagged only as a verb pattern", () => {
+  assert.ok(rules("Check that the valve is closed.").includes("unapproved-word"));
+  assert.ok(rules("Check the valve for leaks.").includes("unapproved-word"));
+  assert.ok(!rules("Do a check of the valve.").includes("unapproved-word"));
+});
+
+test("Rule 8.5 and 8.6: parentheses and quoted text count as one word", () => {
+  assert.equal(steWordCount("Remove the cover (Figure 2, item 14)."), 4);
+  assert.equal(steWordCount('Select "Save all open files".'), 2);
 });
 
 test("organization terms are flagged and approved terms are protected", () => {
@@ -157,7 +196,7 @@ test("every exercise original has issues and every model answer is clean", () =>
 test("every 'STE' example in the lessons passes the checker", () => {
   for (const m of MODULES) {
     for (const r of m.rules) {
-      const res = checkText(r.good);
+      const res = checkText(r.good, { disabledRules: r.allow || [] });
       assert.equal(res.issues.length, 0, `${m.id} / ${r.rule}: ${res.issues.map((i) => i.rule + ":" + (i.match || "")).join(", ")}`);
     }
   }
