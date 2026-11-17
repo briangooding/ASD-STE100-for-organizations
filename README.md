@@ -72,7 +72,26 @@ Then open http://localhost:8080.
 
 ## Deploy
 
-Copy the repository content to any static web host. For GitHub Pages: **Settings → Pages → Deploy from a branch**, then select the branch and the `/ (root)` folder.
+Copy the repository content to any static web host that uses HTTPS.
+
+### GitHub Pages
+
+1. In the repository on GitHub, open **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+3. Select the branch and the **/ (root)** folder, then select **Save**.
+4. After one or two minutes, the app is at `https://<owner>.github.io/<repository>/`.
+
+## Install on a phone
+
+The app is a progressive web app (PWA). When it is on an HTTPS site (for example GitHub Pages), employees can install it. It then opens in its own window, without the browser bars, and works offline after the first visit.
+
+- **iPhone or iPad:** open the link in Safari. Tap **Share**, then **Add to Home Screen**, then **Add**.
+- **Android:** open the link in Chrome. Tap **⋮**, then **Install app** (or **Add to Home screen**). Chrome can also show an install banner.
+- **Windows or Mac (Chrome or Edge):** select the install icon in the address bar.
+
+The home page shows these steps on each device. Progress is saved on the device. To move progress to a different device, use **Organization → Export progress**.
+
+After you change files in the app, change `VERSION` in `sw.js`, so that installed copies get all the new files.
 
 ### Give every employee the same organization settings
 
@@ -101,6 +120,9 @@ Rule IDs for `disabledRules`: `sentence-length`, `paragraph-length`, `unapproved
 
 ```
 index.html              App shell
+manifest.webmanifest    App name and icons for installation
+sw.js                   Service worker (offline use)
+icons/                  App icons
 css/styles.css          Styles (light and dark mode, print, mobile)
 js/app.js               Views and hash router
 js/store.js             Progress and organization settings (localStorage)

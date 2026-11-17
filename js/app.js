@@ -113,6 +113,63 @@ function exerciseProgress() {
   return { done, total: EXERCISES.length };
 }
 
+// ---------- install as an app ----------
+
+let installPrompt = null; // Android and desktop Chrome/Edge: the browser's install event
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  installPrompt = e;
+  const card = document.getElementById("install-card");
+  if (card) card.replaceWith(h(installCardHtml()));
+  wireInstallCard();
+});
+
+window.addEventListener("appinstalled", () => {
+  installPrompt = null;
+  document.getElementById("install-card")?.remove();
+  toast("App installed");
+});
+
+function isStandalone() {
+  return window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function isIos() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+const isEmbedded = (() => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+})();
+
+function installCardHtml() {
+  // Installing works only on the real hosted page, not inside an embedded preview.
+  if (isStandalone() || isEmbedded) return "";
+  let how;
+  if (installPrompt) {
+    how = `<p>Install the app on this device. It opens in its own window and works offline.</p><button class="primary" id="install-btn" type="button">Install app</button>`;
+  } else if (isIos()) {
+    how = `<p>In Safari, tap the <strong>Share</strong> button, then tap <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</p>`;
+  } else {
+    how = `<p>On Android, open this page in Chrome. Tap the <strong>⋮</strong> menu, then <strong>Install app</strong> (or <strong>Add to Home screen</strong>). On iPhone, open it in Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p>`;
+  }
+  return `<div class="card" id="install-card" style="margin-bottom:24px"><h3>Use it on your phone</h3>${how}</div>`;
+}
+
+function wireInstallCard() {
+  document.getElementById("install-btn")?.addEventListener("click", async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice.catch(() => null);
+    installPrompt = null;
+  });
+}
+
 // ---------- annotated checker output ----------
 
 function renderAnnotated(text, result) {
@@ -239,6 +296,8 @@ function viewHome() {
       </div>
     </section>
 
+    ${installCardHtml()}
+
     <div class="card notice" style="margin-bottom:24px">
       <strong>Tip of the day:</strong> <span class="tip">${esc(tip)}</span>
     </div>
@@ -253,6 +312,7 @@ function viewHome() {
     </div>
   `)
   );
+  wireInstallCard();
 }
 
 function viewLearn() {
@@ -804,6 +864,11 @@ function viewOrg() {
       <div class="row">
         <button id="prog-export" type="button">Export progress</button>
         <button id="prog-reset" class="danger" type="button">Reset progress</button>
+        <span class="confirm-row" id="prog-reset-confirm" hidden>
+          <span>Delete all your progress? You cannot undo this.</span>
+          <button id="prog-reset-yes" class="danger" type="button">Yes, reset</button>
+          <button id="prog-reset-no" type="button">Cancel</button>
+        </span>
       </div>
     </div>
   `)
@@ -861,11 +926,22 @@ function viewOrg() {
     download("ste-progress.json", JSON.stringify(report, null, 2));
   });
 
-  main.querySelector("#prog-reset").addEventListener("click", () => {
-    if (confirm("Reset all your progress? You cannot undo this.")) {
-      store.resetProgress();
-      toast("Progress reset");
-    }
+  const resetBtn = main.querySelector("#prog-reset");
+  const resetConfirm = main.querySelector("#prog-reset-confirm");
+  resetBtn.addEventListener("click", () => {
+    resetBtn.hidden = true;
+    resetConfirm.hidden = false;
+    main.querySelector("#prog-reset-no").focus();
+  });
+  main.querySelector("#prog-reset-no").addEventListener("click", () => {
+    resetConfirm.hidden = true;
+    resetBtn.hidden = false;
+  });
+  main.querySelector("#prog-reset-yes").addEventListener("click", () => {
+    store.resetProgress();
+    resetConfirm.hidden = true;
+    resetBtn.hidden = false;
+    toast("Progress reset");
   });
 }
 
@@ -909,6 +985,12 @@ document.getElementById("nav-toggle").addEventListener("click", (e) => {
 });
 
 window.addEventListener("hashchange", route);
+
+// Offline support. Registration fails where service workers are not
+// available (for example, file:// or an embedded preview); the app works without it.
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !isEmbedded) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
 updateHeader();
 route();
 Promise.all([store.loadDeployedOrgConfig(), loadFullDictionary()]).then(([org, dict]) => {

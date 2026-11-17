@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1f5fbf"/>
+  <text x="256" y="300" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="150" fill="#ffffff" text-anchor="middle" letter-spacing="4">STE</text>
+  <rect x="146" y="336" width="220" height="14" rx="7" fill="#ffffff" opacity="0.55"/>
+</svg>
