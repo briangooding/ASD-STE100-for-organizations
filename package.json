@@ -1,0 +1,11 @@
+{
+  "name": "ste-writing-coach",
+  "version": "1.0.0",
+  "description": "Training app for ASD-STE100 Simplified Technical English and technical writing best practices",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "test": "node --test tests/*.test.js"
+  }
+}

@@ -1,0 +1,128 @@
+// Rewrite exercises. The learner rewrites the original text in STE. The app
+// runs the checker on the answer and then shows a model answer.
+// "mode" tells the checker which sentence rules apply.
+
+export const EXERCISES = [
+  {
+    id: "ex-utilize",
+    level: "Beginner",
+    module: "words",
+    mode: "procedural",
+    original: "Utilize a soft cloth in order to clean the lens.",
+    hints: ["Replace \"utilize\".", "\"in order to\" can be shorter."],
+    model: "Use a soft cloth to clean the lens.",
+  },
+  {
+    id: "ex-ensure",
+    level: "Beginner",
+    module: "words",
+    mode: "procedural",
+    original: "Ensure that the main switch is in the OFF position prior to commencing work.",
+    hints: ["Replace \"ensure\", \"prior to\" and \"commencing\".", "Is this one instruction, or two?"],
+    model: "Before you start the work, make sure that the main switch is in the OFF position.",
+  },
+  {
+    id: "ex-passive",
+    level: "Beginner",
+    module: "verbs",
+    mode: "procedural",
+    original: "The filter element should be replaced by the operator every 500 hours.",
+    hints: ["Use the imperative.", "\"should\" is ambiguous. Is the action mandatory?"],
+    model: "Replace the filter element every 500 hours.",
+  },
+  {
+    id: "ex-contraction",
+    level: "Beginner",
+    module: "punctuation",
+    mode: "procedural",
+    original: "Don't overtighten the screws; you'll strip the threads.",
+    hints: ["Remove the contraction.", "Remove the semicolon.", "Put the reason in its own sentence."],
+    model: "Do not tighten the screws too much. Too much torque can cause damage to the threads.",
+  },
+  {
+    id: "ex-multi",
+    level: "Intermediate",
+    module: "procedures",
+    mode: "procedural",
+    original: "Remove the four screws and lift off the cover and then disconnect the ground wire from the terminal.",
+    hints: ["One instruction per sentence.", "Use numbered steps."],
+    model: "1. Remove the four screws.\n2. Lift the cover.\n3. Disconnect the ground wire from the terminal.",
+  },
+  {
+    id: "ex-condition",
+    level: "Intermediate",
+    module: "procedures",
+    mode: "procedural",
+    original: "Replace the gasket if there are any signs of cracking or deformation.",
+    hints: ["Put the condition first.", "Avoid the -ing form \"cracking\"."],
+    model: "If the gasket has cracks or is not in its correct shape, replace it.",
+  },
+  {
+    id: "ex-cluster",
+    level: "Intermediate",
+    module: "noun-clusters",
+    mode: "procedural",
+    original: "Read the cabin air pressure controller fault indicator.",
+    hints: ["Break the noun cluster with prepositions."],
+    model: "Read the fault indicator on the controller for cabin air pressure.",
+  },
+  {
+    id: "ex-progressive",
+    level: "Intermediate",
+    module: "verbs",
+    mode: "descriptive",
+    original: "The compressor is running continuously while the system is building pressure.",
+    hints: ["Do not use progressive (-ing) forms.", "Use the simple present tense."],
+    model: "The compressor operates continuously when the system pressure increases.",
+  },
+  {
+    id: "ex-warning",
+    level: "Intermediate",
+    module: "safety",
+    mode: "auto",
+    original: "WARNING: The hydraulic system is pressurized to 3000 psi and can cause severe injury.",
+    hints: ["Start the warning with a command.", "Then give the risk."],
+    model: "WARNING: Release the hydraulic pressure before you disconnect the lines. The system pressure is 3000 psi and can cause injury.",
+  },
+  {
+    id: "ex-note",
+    level: "Intermediate",
+    module: "safety",
+    mode: "auto",
+    original: "NOTE: You must use a new cotter pin during reassembly.",
+    hints: ["A note must not contain a command.", "Move the instruction into a step."],
+    model: "Install a new cotter pin.\n\nNOTE: The old cotter pin can break if you use it again.",
+  },
+  {
+    id: "ex-long-proc",
+    level: "Advanced",
+    module: "procedures",
+    mode: "procedural",
+    original:
+      "After the system has been depressurized and the reservoir has been drained, carefully disconnect the supply line from the pump inlet port, making sure to cap the open fittings immediately to prevent contamination.",
+    hints: ["Maximum 20 words for each instruction.", "No perfect tenses.", "No -ing forms.", "One instruction per step."],
+    model:
+      "1. Release the pressure from the system.\n2. Drain the reservoir.\n3. Disconnect the supply line from the inlet port of the pump.\n4. Install caps on the open fittings immediately. This prevents contamination.",
+  },
+  {
+    id: "ex-long-desc",
+    level: "Advanced",
+    module: "descriptive",
+    mode: "descriptive",
+    original:
+      "The fuel quantity indicating system, which comprises capacitance probes located in each tank, a signal conditioning unit and a cockpit display, provides the crew with real-time information regarding the fuel remaining onboard.",
+    hints: ["Maximum 25 words per sentence.", "Start with the topic sentence.", "Replace \"comprises\", \"located\" and \"regarding\"."],
+    model:
+      "The fuel quantity system shows the crew how much fuel is in the tanks. The system has three parts: probes in each tank, a signal unit, and a display in the cockpit.",
+  },
+  {
+    id: "ex-software",
+    level: "Advanced",
+    module: "best-practices",
+    mode: "procedural",
+    original:
+      "Users should simply navigate to the Settings page and then just click on Save once they've finished modifying their preferences, etc.",
+    hints: ["Use the imperative.", "Remove filler words.", "One instruction per step.", "Do not use \"etc.\"."],
+    model: "1. Go to the Settings page.\n2. Change your preferences.\n3. Click Save.",
+  },
+];

@@ -1,0 +1,20 @@
+{
+  "format": "ste-coach-org",
+  "version": 1,
+  "name": "Acme Aerospace Technical Publications",
+  "locked": false,
+  "approvedTerms": [
+    "landing gear",
+    "retaining ring",
+    "safety-wire",
+    "main-landing-gear door actuator"
+  ],
+  "orgTerms": [
+    { "word": "hose", "alternatives": ["fuel line"], "note": "Use the name from the illustrated parts list." },
+    { "word": "lid", "alternatives": ["cover"], "note": "One part, one name." },
+    { "word": "login", "alternatives": ["log in"], "note": "As a verb, write two words." },
+    { "word": "master", "alternatives": ["primary", "main"], "note": "Inclusive language policy." }
+  ],
+  "disabledRules": [],
+  "styleNotes": "Use the names from the illustrated parts list.\nGive SI units first, then US units in parentheses.\nWrite user-interface labels exactly as they appear on the screen."
+}
